@@ -1,7 +1,60 @@
 /* eslint-disable jsx-a11y/alt-text */
 import Props from '../types/styleComponentsType';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+const schema = yup
+  .object()
+  .shape({
+    name: yup.string().required('此欄位必填').min(1, { message: '此欄位必填' }),
+    email: yup
+      .string()
+      .required('此欄位必填')
+      .matches(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)
+      .min(1, { message: '此欄位必填' }),
+    message: yup
+      .string()
+      .required('此欄位必填')
+      .min(1, { message: '此欄位必填' }),
+  })
+  .required();
 
 function Midterm({ className }: Props) {
+  const [post, setPost] = useState(null);
+  const baseURL = 'http://localhost:3004/messages';
+
+  useEffect(() => {
+    // axios.get(`${baseURL}/1`).then((response) => {
+    //   setPost(response.data);
+    //   console.log(response.data);
+    // });
+  }, []);
+
+  function btnSendMessage(name: string, email: string, message: string) {
+    axios
+      .post(baseURL, {
+        name: name,
+        email: email,
+        message: message,
+        timestamp: `${Math.round(new Date().getTime() / 1000)}`,
+      })
+      .then((response) => {
+        setPost(response.data);
+        console.log(response.data);
+      });
+  }
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
   return (
     <div className={className}>
       <div className="midterm-menu-bar">
@@ -62,39 +115,57 @@ function Midterm({ className }: Props) {
           ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </div>
         <div className="">Contract.</div>
-        <div className="midterm-home-contract-box">
-          <div className="midterm-home-contract-input-box">
-            <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="midterm-home-contract-input"
-              required
-            />
+
+        <form
+          onSubmit={handleSubmit((d) =>
+            btnSendMessage(d.name, d.email, d.message)
+          )}
+        >
+          <div className="midterm-home-contract-box">
+            <div className="midterm-home-contract-input-box">
+              <label htmlFor="name">Name</label>
+              <input
+                {...register('name')}
+                type="text"
+                id="name"
+                name="name"
+                className="midterm-home-contract-input"
+              />
+            </div>
+            {errors.name && (
+              <div className="input-required-error">'此欄位必填'</div>
+            )}
+            <div className="midterm-home-contract-input-box">
+              <label htmlFor="Email">Email</label>
+              <input
+                {...register('email')}
+                type="text"
+                id="email"
+                name="email"
+                className="midterm-home-contract-input"
+              />
+            </div>
+            {errors.email && (
+              <div className="input-required-error">
+                '請輸入正確的email格式'
+              </div>
+            )}
+            <div className="midterm-home-contract-input-box">
+              <label htmlFor="Message">Message</label>
+              <input
+                {...register('message')}
+                type="text"
+                id="message"
+                name="message"
+                className="midterm-home-contract-input"
+              />
+            </div>
+            {errors.message && (
+              <div className="input-required-error">'此欄位必填'</div>
+            )}
           </div>
-          <div className="midterm-home-contract-input-box">
-            <label htmlFor="Email">Email</label>
-            <input
-              type="text"
-              id="Email"
-              name="Email"
-              className="midterm-home-contract-input"
-              required
-            />
-          </div>
-          <div className="midterm-home-contract-input-box">
-            <label htmlFor="Message">Message</label>
-            <input
-              type="text"
-              id="Message"
-              name="Message"
-              className="midterm-home-contract-input"
-              required
-            />
-          </div>
-        </div>
-        <div className="midterm-home-btn-send-message">Send Message</div>
+          <input type="submit" className="midterm-home-btn-send-message" />
+        </form>
       </div>
     </div>
   );
