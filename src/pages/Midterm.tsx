@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import Props from '../types/styleComponentsType';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -23,15 +23,8 @@ const schema = yup
   .required();
 
 function Midterm({ className }: Props) {
-  const [post, setPost] = useState(null);
+  const navigate = useNavigate();
   const baseURL = 'http://localhost:3004/messages';
-
-  useEffect(() => {
-    // axios.get(`${baseURL}/1`).then((response) => {
-    //   setPost(response.data);
-    //   console.log(response.data);
-    // });
-  }, []);
 
   function btnSendMessage(name: string, email: string, message: string) {
     axios
@@ -42,7 +35,6 @@ function Midterm({ className }: Props) {
         timestamp: `${Math.round(new Date().getTime() / 1000)}`,
       })
       .then((response) => {
-        setPost(response.data);
         console.log(response.data);
       });
   }
@@ -120,6 +112,7 @@ function Midterm({ className }: Props) {
           onSubmit={handleSubmit((d) => {
             btnSendMessage(d.name, d.email, d.message);
             alert('users successfully send a message');
+            navigate('/messages');
           })}
         >
           <div className="midterm-home-contract-box">
