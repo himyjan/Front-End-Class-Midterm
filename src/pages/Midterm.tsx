@@ -117,9 +117,10 @@ function Midterm({ className }: Props) {
         <div className="">Contract.</div>
 
         <form
-          onSubmit={handleSubmit((d) =>
-            btnSendMessage(d.name, d.email, d.message)
-          )}
+          onSubmit={handleSubmit((d) => {
+            btnSendMessage(d.name, d.email, d.message);
+            alert('users successfully send a message');
+          })}
         >
           <div className="midterm-home-contract-box">
             <div className="midterm-home-contract-input-box">
