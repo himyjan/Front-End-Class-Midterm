@@ -236,6 +236,42 @@ function Messages({ className }: Props) {
           {Object.keys(rowSelection).length} of{' '}
           {table.getPreFilteredRowModel().rows.length} Total Rows Selected
         </div>
+        <hr />
+        <br />
+        <div>
+          {/* <button className="border rounded p-2 mb-2" onClick={() => rerender()}>
+          Force Rerender
+        </button> */}
+        </div>
+        <div>
+          {/* <button
+            className="border rounded p-2 mb-2"
+            onClick={() => refreshData()}
+          >
+            Refresh Data
+          </button> */}
+        </div>
+        <div>
+          <button
+            className="border rounded p-2 mb-2"
+            onClick={() => console.info('rowSelection', rowSelection)}
+          >
+            Log `rowSelection` state
+          </button>
+        </div>
+        <div>
+          <button
+            className="border rounded p-2 mb-2"
+            onClick={() =>
+              console.info(
+                'table.getSelectedFlatRows()',
+                table.getSelectedRowModel().flatRows
+              )
+            }
+          >
+            Log table.getSelectedFlatRows()
+          </button>
+        </div>
       </div>
     </div>
   );
