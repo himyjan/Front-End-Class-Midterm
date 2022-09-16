@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 import axios from 'axios';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, HTMLProps } from 'react';
 import { Props } from '../types/styleComponentsType';
 import { Record } from '../types/JsonServerDataType';
 import {
@@ -288,17 +288,14 @@ function IndeterminateCheckbox({
   indeterminate,
   className = '',
   ...rest
-}: {
-  indeterminate?: boolean;
-  className?: string;
-}) {
+}: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
   const ref = useRef<HTMLInputElement>(null!);
 
-  // useEffect(() => {
-  //   if (typeof indeterminate === 'boolean') {
-  //     ref.current.indeterminate = !rest['checked'] && indeterminate;
-  //   }
-  // }, [ref, indeterminate]);
+  useEffect(() => {
+    if (typeof indeterminate === 'boolean') {
+      ref.current.indeterminate = !rest.checked && indeterminate;
+    }
+  }, [ref, indeterminate]);
 
   return (
     <input
