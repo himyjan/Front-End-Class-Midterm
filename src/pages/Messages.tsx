@@ -25,6 +25,9 @@ const columns = [
   columnHelper.accessor('timestamp', {
     header: () => <div>timestamp</div>,
   }),
+  columnHelper.accessor('imageUrl', {
+    header: () => <div>imageUrl</div>,
+  }),
 ];
 function Messages({ className }: Props) {
   const [data, setData] = useState<Record[]>([]);
