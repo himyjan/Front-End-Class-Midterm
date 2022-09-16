@@ -88,7 +88,7 @@ const GlobalStyle = createGlobalStyle`
 
   * {
     font-family: 'Poppins';
-    font-weight: normal;
+    font-weight: 500;
   }
 `;
 

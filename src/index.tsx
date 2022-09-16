@@ -3,8 +3,8 @@ import { StrictMode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import App from './App';
-import Midterm from './pages/Midterm';
-import Messages from './pages/Messages';
+import Midterm from './styledComponents/Midterm.style';
+import Messages from './styledComponents/Messages.style';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,9 +15,12 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />}>
-          <Route index element={<Midterm />} />
-          <Route path="messages" element={<Messages />} />
-          <Route path="messages/:id" element={<Messages />} />
+          <Route index element={<Midterm className="Midterm" />} />
+          <Route path="messages" element={<Messages className="Messages" />} />
+          <Route
+            path="messages/:id"
+            element={<Messages className="Messages" />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
