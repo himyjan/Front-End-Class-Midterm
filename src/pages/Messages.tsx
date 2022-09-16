@@ -1,36 +1,22 @@
 /* eslint-disable jsx-a11y/alt-text */
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Props } from '../types/styleComponentsType';
 import { Record } from '../types/JsonServerDataType';
 import {
-  createColumnHelper,
+  Column,
+  ColumnDef,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  Table,
   useReactTable,
 } from '@tanstack/react-table';
 
-const columnHelper = createColumnHelper<Record>();
-
-const columns = [
-  columnHelper.accessor('name', {
-    header: () => <div>Name</div>,
-  }),
-  columnHelper.accessor('email', {
-    header: () => <div>Email</div>,
-  }),
-  columnHelper.accessor('message', {
-    header: () => <div>Message</div>,
-  }),
-  columnHelper.accessor('timestamp', {
-    header: () => <div>timestamp</div>,
-  }),
-  columnHelper.accessor('imageUrl', {
-    header: () => <div>imageUrl</div>,
-  }),
-];
 function Messages({ className }: Props) {
-  const [data, setData] = useState<Record[]>([]);
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState('');
 
   const baseURL = 'http://localhost:3004/messages';
 
@@ -44,79 +30,284 @@ function Messages({ className }: Props) {
     getJsonServerRecord();
   }, []);
 
+  const columns = useMemo<ColumnDef<Record>[]>(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <IndeterminateCheckbox
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="px-1">
+            <IndeterminateCheckbox
+              {...{
+                checked: row.getIsSelected(),
+                indeterminate: row.getIsSomeSelected(),
+                onChange: row.getToggleSelectedHandler(),
+              }}
+            />
+          </div>
+        ),
+      },
+      {
+        header: 'Name',
+        footer: (props) => props.column.id,
+        columns: [
+          {
+            accessorKey: 'name',
+            cell: (info) => info.getValue(),
+            footer: (props) => props.column.id,
+          },
+        ],
+      },
+      {
+        header: 'Email',
+        footer: (props) => props.column.id,
+        columns: [
+          {
+            accessorKey: 'email',
+            header: () => 'email',
+            footer: (props) => props.column.id,
+          },
+        ],
+      },
+    ],
+    []
+  );
+
+  const [data, setData] = useState<Record[]>([]);
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    debugTable: true,
   });
 
   return (
     <div className={className}>
-      <div className="container">
-        <div className="title-bar">
-          <button className="btn btn-primary" onClick={getJsonServerRecord}>
-            Get Lists
-          </button>
-          <div className="" />
+      <div className="p-2">
+        <div>
+          <input
+            value={globalFilter ?? ''}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="p-2 font-lg shadow border border-block"
+            placeholder="Search all columns..."
+          />
         </div>
-        <br />
-
-        <div className="p-2">
-          <table>
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
+        <div className="h-2" />
+        <table>
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <th key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder ? null : (
+                        <>
+                          {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                          {header.column.getCanFilter() ? (
+                            <div>
+                              <Filter column={header.column} table={table} />
+                            </div>
+                          ) : null}
+                        </>
                       )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              {table.getFooterGroups().map((footerGroup) => (
-                <tr key={footerGroup.id}>
-                  {footerGroup.headers.map((header) => (
-                    <th key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.footer,
-                            header.getContext()
-                          )}
                     </th>
-                  ))}
+                  );
+                })}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => {
+              return (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => {
+                    return (
+                      <td key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
-              ))}
-            </tfoot>
-          </table>
-          <div className="h-4" />
-          {/* <button onClick={() => rerender()} className="border p-2">
-            Rerender
-          </button> */}
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td className="p-1">
+                <IndeterminateCheckbox
+                  {...{
+                    checked: table.getIsAllPageRowsSelected(),
+                    indeterminate: table.getIsSomePageRowsSelected(),
+                    onChange: table.getToggleAllPageRowsSelectedHandler(),
+                  }}
+                />
+              </td>
+              <td colSpan={20}>
+                Page Rows ({table.getRowModel().rows.length})
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <div className="h-2" />
+        <div className="flex items-center gap-2">
+          <button
+            className="border rounded p-1"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<<'}
+          </button>
+          <button
+            className="border rounded p-1"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<'}
+          </button>
+          <button
+            className="border rounded p-1"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>'}
+          </button>
+          <button
+            className="border rounded p-1"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>>'}
+          </button>
+          <span className="flex items-center gap-1">
+            <div>Page</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{' '}
+              {table.getPageCount()}
+            </strong>
+          </span>
+          <span className="flex items-center gap-1">
+            | Go to page:
+            <input
+              type="number"
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className="border p-1 rounded w-16"
+            />
+          </span>
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+        <br />
+        <div>
+          {Object.keys(rowSelection).length} of{' '}
+          {table.getPreFilteredRowModel().rows.length} Total Rows Selected
         </div>
       </div>
     </div>
   );
 }
+
+function Filter({
+  column,
+  table,
+}: {
+  column: Column<any, any>;
+  table: Table<any>;
+}) {
+  const firstValue = table
+    .getPreFilteredRowModel()
+    .flatRows[0]?.getValue(column.id);
+
+  return typeof firstValue === 'number' ? (
+    <div className="flex space-x-2">
+      <input
+        type="number"
+        value={((column.getFilterValue() as any)?.[0] ?? '') as string}
+        onChange={(e) =>
+          column.setFilterValue((old: any) => [e.target.value, old?.[1]])
+        }
+        placeholder={`Min`}
+        className="w-24 border shadow rounded"
+      />
+      <input
+        type="number"
+        value={((column.getFilterValue() as any)?.[1] ?? '') as string}
+        onChange={(e) =>
+          column.setFilterValue((old: any) => [old?.[0], e.target.value])
+        }
+        placeholder={`Max`}
+        className="w-24 border shadow rounded"
+      />
+    </div>
+  ) : (
+    <input
+      type="text"
+      value={(column.getFilterValue() ?? '') as string}
+      onChange={(e) => column.setFilterValue(e.target.value)}
+      placeholder={`Search...`}
+      className="w-36 border shadow rounded"
+    />
+  );
+}
+
+function IndeterminateCheckbox({
+  indeterminate,
+  className = '',
+  ...rest
+}: {
+  indeterminate?: boolean;
+  className?: string;
+}) {
+  const ref = useRef<HTMLInputElement>(null!);
+
+  // useEffect(() => {
+  //   if (typeof indeterminate === 'boolean') {
+  //     ref.current.indeterminate = !rest['checked'] && indeterminate;
+  //   }
+  // }, [ref, indeterminate]);
+
+  return (
+    <input
+      type="checkbox"
+      ref={ref}
+      className={className + ' cursor-pointer'}
+      {...rest}
+    />
+  );
+}
+
 export default Messages;
