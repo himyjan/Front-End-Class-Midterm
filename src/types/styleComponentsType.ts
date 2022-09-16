@@ -1,3 +1,3 @@
-export default interface Props {
+export type Props = {
   className: string;
-}
+};

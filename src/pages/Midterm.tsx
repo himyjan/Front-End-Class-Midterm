@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import Props from '../types/styleComponentsType';
+import { Props } from '../types/styleComponentsType';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
