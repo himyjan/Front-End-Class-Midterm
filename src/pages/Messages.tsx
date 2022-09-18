@@ -1,6 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text */
 import axios from 'axios';
-import { useEffect, useMemo, useRef, useState, HTMLProps } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useReducer,
+  HTMLProps,
+} from 'react';
 import { Props } from '../types/styleComponentsType';
 import { Record } from '../types/JsonServerDataType';
 import {
@@ -15,6 +22,7 @@ import {
 } from '@tanstack/react-table';
 
 function Messages({ className }: Props) {
+  const rerender = useReducer(() => ({}), {})[1];
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState('');
 
@@ -66,7 +74,7 @@ function Messages({ className }: Props) {
           },
         ],
       },
-      {
+       {
         header: 'Email',
         footer: (props) => props.column.id,
         columns: [
@@ -77,11 +85,45 @@ function Messages({ className }: Props) {
           },
         ],
       },
+      {
+        header: 'Message',
+        footer: (props) => props.column.id,
+        columns: [
+          {
+            accessorKey: 'message',
+            header: () => 'message',
+            footer: (props) => props.column.id,
+          },
+        ],
+      },
+      {
+        header: 'Timestamp',
+        footer: (props) => props.column.id,
+        columns: [
+          {
+            accessorKey: 'timestamp',
+            header: () => 'timestamp',
+            footer: (props) => props.column.id,
+          },
+        ],
+      },
+      {
+        header: 'ImageUrl',
+        footer: (props) => props.column.id,
+        columns: [
+          {
+            accessorKey: 'imageUrl',
+            header: () => 'imageUrl',
+            footer: (props) => props.column.id,
+          },
+        ],
+      },
     ],
     []
   );
 
   const [data, setData] = useState<Record[]>([]);
+  const refreshData = () => getJsonServerRecord();
 
   const table = useReactTable({
     data,
@@ -239,17 +281,20 @@ function Messages({ className }: Props) {
         <hr />
         <br />
         <div>
-          {/* <button className="border rounded p-2 mb-2" onClick={() => rerender()}>
-          Force Rerender
-        </button> */}
+          <button
+            className="border rounded p-2 mb-2"
+            onClick={() => rerender()}
+          >
+            Force Rerender
+          </button>
         </div>
         <div>
-          {/* <button
+          <button
             className="border rounded p-2 mb-2"
             onClick={() => refreshData()}
           >
             Refresh Data
-          </button> */}
+          </button>
         </div>
         <div>
           <button
