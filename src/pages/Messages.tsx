@@ -34,16 +34,17 @@ function Messages({ className }: Props) {
     });
   }
 
-  function deleteJsonServerRecord(ids: string[]) {
-    ids.forEach((id) => {
-      axios.delete(`${baseURL}/${id+1}`).then((response) => {
+  function deleteJsonServerRecord(indexArray: string[]) {
+    indexArray.forEach((index) => {
+      const id = data[parseInt(index, 10)].id;
+      axios.delete(`${baseURL}/${id}`).then((response) => {
         setData(response.data);
       });
     });
 
     setTimeout(() => {
       refreshData();
-    }, 1000);
+    }, 100);
   }
 
   useEffect(() => {
@@ -74,6 +75,17 @@ function Messages({ className }: Props) {
             />
           </div>
         ),
+      },
+      {
+        header: 'ID',
+        footer: (props) => props.column.id,
+        columns: [
+          {
+            accessorKey: 'id',
+            cell: (info) => info.getValue(),
+            footer: (props) => props.column.id,
+          },
+        ],
       },
       {
         header: 'Name',
@@ -297,7 +309,7 @@ function Messages({ className }: Props) {
             className="border rounded p-2 mb-2"
             onClick={() => deleteJsonServerRecord(Object.keys(rowSelection))}
           >
-            delete `rowSelection`
+            delete `idSelection`
           </button>
         </div>
         <div>
