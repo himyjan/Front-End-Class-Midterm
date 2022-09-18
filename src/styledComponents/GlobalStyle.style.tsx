@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
 /***
@@ -95,7 +95,7 @@ meter {
   margin: 0;
   padding: 0;
   font-family: 'Poppins';
-  font-style: normal;
+  font-weight: normal;
 }
 `;
 
