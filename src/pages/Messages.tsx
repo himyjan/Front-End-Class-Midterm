@@ -35,11 +35,12 @@ function Messages({ className }: Props) {
   }
 
   function deleteJsonServerRecord(ids: string[]) {
-    ids.forEach(id => {
+    ids.forEach((id) => {
       axios.delete(`${baseURL}/${id}`).then((response) => {
         setData(response.data);
       });
     });
+    getJsonServerRecord();
   }
 
   useEffect(() => {
@@ -293,7 +294,7 @@ function Messages({ className }: Props) {
             className="border rounded p-2 mb-2"
             onClick={() => deleteJsonServerRecord(Object.keys(rowSelection))}
           >
-            Log `rowSelection` state
+            delete `rowSelection`
           </button>
         </div>
         <div>
