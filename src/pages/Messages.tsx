@@ -36,11 +36,14 @@ function Messages({ className }: Props) {
 
   function deleteJsonServerRecord(ids: string[]) {
     ids.forEach((id) => {
-      axios.delete(`${baseURL}/${id}`).then((response) => {
+      axios.delete(`${baseURL}/${id+1}`).then((response) => {
         setData(response.data);
       });
     });
-    getJsonServerRecord();
+
+    setTimeout(() => {
+      refreshData();
+    }, 1000);
   }
 
   useEffect(() => {
